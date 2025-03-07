@@ -44,7 +44,7 @@ button {
 }
 
 .chat-display {
-    background-color: #333;
+    background-color:#ffff99;
     list-style-type: none;
     width: 100%;
     max-width: 600px;
@@ -67,12 +67,12 @@ button {
     flex-shrink: 0;
 }
 
-.post--left {
+.post--right {
     width: 60%;
     align-self: flex-start;
 }
 
-.post--right {
+.post--left {
     width: 60%;
     align-self: flex-end;
 }
@@ -87,11 +87,11 @@ button {
 }
 
 .post__header--user {
-    background-color: blue;
+    background-color: #ffff99;
 }
 
 .post__header--reply {
-    background-color: purple;
+    background-color:rgb(255, 254, 254);
 }
 
 .post__header--name {
