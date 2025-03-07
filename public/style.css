@@ -113,6 +113,7 @@ button {
 .user-list,
 .room-list,
 .activity {
+    color:black;
     width: 100%;
     min-height: 2.65rem;
     margin: 0 auto;
