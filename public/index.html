@@ -1,39 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <script src="node_modules/eruda/eruda.js"></script>
-    <script>eruda.init();</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
+    
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Font Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link href="style.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="https://cdn4.iconfinder.com/data/icons/new-google-logo-2015/400/new-google-favicon-512.png">
+    <title>Google</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"
-        integrity="sha512-Xm9qbB6Pu06k3PUwPj785dyTl6oHxgsv9nHp7ej7nCpAqGZT3OZpsELuCYX05DdonFpTlBpXMOxjavIAIUwr0w=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            integrity="sha512-Xm9qbB6Pu06k3PUwPj785dyTl6oHxgsv9nHp7ej7nCpAqGZT3OZpsELuCYX05DdonFpTlBpXMOxjavIAIUwr0w=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script defer src="app.js"></script>
 </head>
-
 <body>
+<div id="google">
+    </div>
+    <div id="mainBody">
+        <img id="googleLogo" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google Logo" />
+        <div class="search">
+            <div class="search__input">
+                <span class="material-icons">search</span>
+                <input type="text" id="search-input" />
+                <span class="material-icons">mic</span>
+            </div>
+            <div class="search__buttons">
+                <button onclick="handleSearch()">Google Search</button>
+                <button onclick="handleSearch()">I'm Feeling Lucky</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="hidden" style="display:none;">
     <main>
         <form class="form-join">
             <input type="text" id="name" maxlength="8" placeholder="Your name" size="5" required>
             <input type="text" id="room" placeholder="Chat room" size="5" required>
             <button id="join" type="submit">Join</button>
         </form>
-
         <ul class="chat-display"></ul>
-
         <p class="user-list"></p>
-
         <p class="room-list"></p>
-
         <p class="activity"></p>
-
         <form class="form-msg">
             <input type="text" id="message" placeholder="Your message" required>
             <button type="submit">Send</button>
         </form>
     </main>
+</div>
+
+<script>
+    const styles = `
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-size: 1rem;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+        background-image: linear-gradient(47deg, rgb(153, 255, 206), #ffff99);
+        color: #fff;
+    }
+    main {
+        height: 100vh;
+        padding: 1rem;
+        display: flex;
+        flex-flow: column;
+    }
+    form {
+        width: 100%;
+        margin: auto;
+        max-width: 600px;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        gap: .25rem;
+    }
+    input {
+        flex-grow: 1;
+        max-width: calc(80% - .25rem);
+    }
+    button {
+        width: 20%;
+    }
+    input, button {
+        border-radius: 10px;
+        padding: .5rem;
+    }
+    .chat-display {
+        border-style: solid;
+        background-color: #ffff99;
+        list-style-type: none;
+        width: 100%;
+        max-width: 600px;
+        border-radius: 10px;
+        margin: 1rem auto;
+        padding: 0;
+        display: flex;
+        flex-flow: column;
+        justify-content: left;
+        overflow: auto;
+        flex-grow: 1;
+    }
+    .post {
+        border-style: solid;
+        background-image: linear-gradient(47deg, rgb(153, 255, 206), #ffff99);
+        border-radius: 10px;
+        padding: 0 0 .25rem;
+        margin: .5rem;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .post--right {
+        width: 60%;
+        align-self: flex-start;
+    }
+    .post--left {
+        width: 60%;
+        align-self: flex-end;
+    }
+    .post__header {
+        color: #fff;
+        padding: .25rem .5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: .5rem;
+    }
+    .post__header--user {
+        background-color: rgb(255, 162, 0);
+    }
+    .post__header--reply {
+        background-color: rgb(255, 242, 0);
+    }
+    .post__header--name {
+        font-weight: bold;
+    }
+    .post__header--time {
+        font-size: .8rem;
+    }
+    .post__text {
+        margin-top: 5px;
+        color: #333;
+        padding: .25rem .5rem;
+    }
+    .user-list, .room-list, .activity {
+        color: black;
+        width: 100%;
+        min-height: 2.65rem;
+        margin: 0 auto;
+        max-width: 600px;
+        padding: .75rem .25rem;
+    }
+    .activity {
+        font-style: italic;
+    }
+    `;
+    
+    document.getElementById('googleLogo').addEventListener('click', incrementCount);
+    
+    document.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          handleSearch();
+        }
+    });
+    
+    function check() {
+        const searchInput = document.getElementById('search-input').value.trim();
+        const specificText = "google classroom"; // Replace this with your specific trigger text
+        if (searchInput.toLowerCase() === specificText.toLowerCase()) {
+            document.getElementById("mainBody").style.display = "none";
+            document.getElementById("hidden").style.display = "block";
+            const styleElements = document.querySelectorAll('style');
+            styleElements.forEach(style => style.remove());
+            const styleSheet = document.createElement('style');
+            styleSheet.type = 'text/css';
+            styleSheet.innerText = styles;
+            document.head.appendChild(styleSheet);
+            document.removeEventListener('keypress', handleKeyPress);
+        } else {
+            window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchInput)}`;
+        }
+    }
+    
+    function handleSearch() {
+        if(count == 3) {
+            check();
+        } else {
+            const searchInput = document.getElementById('search-input').value.trim();
+            window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchInput)}`;
+        }
+    }
+    
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    }
+    
+    document.addEventListener('keypress', handleKeyPress);
+    
+    let count = 0;
+    function incrementCount() {
+        count++;
+    }
+    </script>
+    
+    
+
+<style>
+* {
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 30px;
+  align-items: center;
+  width: 100%;
+}
+
+.header a {
+  margin-right: 20px;
+  text-decoration: inherit;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 15px;
+}
+
+.header a:hover {
+  text-decoration: underline;
+}
+
+.header__right {
+  display: flex;
+  margin-left: auto;
+  min-width: 13vw;
+  justify-content: space-between;
+}
+
+.header__right .header__apps {
+  margin-right: 10px;
+}
+
+/* Main Body */
+#mainBody{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Center content vertically */
+  flex: 1;
+}
+
+#googleLogo {
+  object-fit: contain;
+  height: 100px;
+}
+
+/* Search */
+.search__input {
+  display: flex;
+  align-items: center;
+  border: 1px solid lightgray;
+  height: 30px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  width: 75vw;
+  margin: 0 auto;
+  margin-top: 40px;
+  max-width: 560px;
+}
+
+.search__input input {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  outline: none;
+}
+
+.search__input .material-icons {
+  color: gray;
+}
+
+.search__buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.search__buttons button {
+  margin: 5px;
+  padding: 10px 15px;
+  background-color: #f8f8f8;
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
+
+</style>
 </body>
 </html>
