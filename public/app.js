@@ -1,4 +1,4 @@
-const socket = io('https://google.mangopi.xyz')
+const socket = io('https://whascat.onrender.com')
 
 const msgInput = document.querySelector('#message')
 const nameInput = document.querySelector('#name')
